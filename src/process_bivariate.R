@@ -6,7 +6,8 @@ library(data.table)
 # library(foreach)
 library(msm)
 library(ggplot2)
-# library(cowplot)
+library(psych)
+library(corrplot)
 
 readHsqForBiv <- function(path_res, prefix_res = '.hsq') {
 
@@ -159,7 +160,7 @@ plot_bivariate <- function(res, dirout = '') {
     coord_cartesian(ylim = c(0,0.9), xlim = c(0, 0.9)) +
     geom_smooth(method=lm) +
     geom_text(x = 0.4, y = 0.75,
-              label = lm_eqn(data.frame(x = res$rP,y = res$rG)),
+              label = lm_eqn(data.frame(x = res$rG,y = res$rP)),
               parse = TRUE, size = 4)
   pdf(file.path(dirout,'rP_vs_rG.pdf'), 5, 5)
   print(gg)
@@ -175,12 +176,12 @@ plot_bivariate <- function(res, dirout = '') {
   res_un <- res_un[grep('_noCovar', phenotype1, invert = T),]
   
   gg <- ggplot(res_un, aes(x = rG, y  = rE)) + 
-    geom_point(alpha = 0.8, size = 1) + 
+    geom_point(alpha = 0.4, size = 5) + 
     theme_bw() + 
     coord_cartesian(ylim = c(0,0.9), xlim = c(0, 0.9)) +
     geom_smooth(method=lm) +
     geom_text(x = 0.4, y = 0.75,
-              label = lm_eqn(data.frame(x = res$rE,y = res$rG)),
+              label = lm_eqn(data.frame(x = res$rG,y = res$rE)),
               parse = TRUE, size = 4)
   pdf(file.path(dirout,'rE_vs_rG.pdf'), 5, 5)
   print(gg)

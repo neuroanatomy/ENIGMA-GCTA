@@ -52,6 +52,8 @@ def main():
                                    "--reml-no-constrain"],
                                   mode=mode,
                                   slurm_par=["-J", "simu_hsq",
+                                             "--qos", "fast",
+                                             "-p", "common,dedicated",
                                              "--mem", "2G",
                                              "-D", out_dir_hsq,
                                              "-W"],

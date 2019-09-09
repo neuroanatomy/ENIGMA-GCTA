@@ -4,6 +4,7 @@
 
 import os
 import subprocess
+# from glob import glob
 import pandas as pd
 import numpy as np
 from configtest import GEN_DIR, RAW_DIR, PLINK, N_SNP

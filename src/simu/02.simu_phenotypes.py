@@ -75,6 +75,8 @@ def main():
                                    "--out", phe_file],
                                   mode=mode,
                                   slurm_par=["-J", "simu_pheno",
+                                             "--qos", "fast",
+                                             "-p", "common,dedicated",
                                              "--mem", "4G",
                                              "-D", out_dir,
                                              "-W"],

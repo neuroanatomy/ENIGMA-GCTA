@@ -562,6 +562,8 @@ def gcta_grm_part(in_file,
                     "--thread-num", str(ncpus)
                     ] + other_gcta_par
             slurm_par = ["-J", "gcta_grm",
+                         "-p", "common",
+                         "--qos", "normal",
                          "-D", log_dir,
                          "-c", str(ncpus)]
             jid = run(args, mode=bmode1, slurm_par=slurm_par)
@@ -578,6 +580,8 @@ def gcta_grm_part(in_file,
                     "--thread-num", str(ncpus)
                     ] + other_gcta_par
             slurm_par = ["-J", "gcta_grm",
+                         "-p", "common",
+                         "--qos", "normal",
                          "--mem", str(max_mem) + "G",
                          "-D", log_dir,
                          "-c", str(ncpus)]
@@ -589,6 +593,8 @@ def gcta_grm_part(in_file,
                "cat "+out_file+".part_"+str(nparts)+"_*.grm.N.bin > "+out_file+".grm.N.bin;" +
                "rm "+out_file+".part_"+str(nparts)+"_*.grm.{id,bin,N.bin}")
         slurm_par = ["-J", "gcta_grm_merge",
+                     "-p", "common",
+                     "--qos", "normal",
                      "-D", log_dir,
                      "--dependency", "afterok:" + jid]
         jid = run(cmd, mode=bmode2, slurm_par=slurm_par)
@@ -673,46 +679,53 @@ def gcta_grm(in_file,
 
         for chrom in chr_list:
             grmchr_file = out_file + '-chr' + str(chrom)
-            try:
-                jids += [gcta_grm_part(in_file=in_file,
-                                       out_file=grmchr_file,
-                                       par_input=par_input,
-                                       gcta=gcta,
-                                       ncpus=ncpus,
-                                       other_gcta_par=["--chr", str(chrom)] + other_gcta_par,
-                                       sbatch=sbatch)]
-            except OSError as ex:
-                raise ex
+            if not os.path.isfile(grmchr_file + '.grm.bin'):
+                try:
+                    jids += [gcta_grm_part(in_file=in_file,
+                                           out_file=grmchr_file,
+                                           par_input=par_input,
+                                           gcta=gcta,
+                                           ncpus=ncpus,
+                                           other_gcta_par=["--chr", str(chrom)] + other_gcta_par,
+                                           sbatch=sbatch)]
+                except OSError as ex:
+                    raise ex
             myfile.write("%s\n" % grmchr_file)
         myfile.close()
 
         # merge GRM by chromosome
-        try:
-            run([gcta,
-                 "--mgrm-bin", os.path.join(out_dir, 'all.multi.txt'),
-                 "--make-grm-bin",
-                 "--out", out_file,
-                 "--thread-num", str(ncpus)
-                 ] + other_gcta_par,
-                mode=rmode,
-                slurm_par=["-J", "gcta_grm_merge",
-                           "-D", log_dir,
-                           "-c", str(ncpus),
-                           "--dependency", "afterok:" + ":".join(jids)])
-        except OSError as ex:
-            raise ex
+        if not os.path.isfile(out_file + '.grm.bin'):
+            try:
+                run([gcta,
+                     "--mgrm-bin", os.path.join(out_dir, 'all.multi.txt'),
+                     "--make-grm-bin",
+                     "--out", out_file,
+                     "--thread-num", str(ncpus)
+                     ] + other_gcta_par,
+                    mode=rmode,
+                    slurm_par=["-J", "gcta_grm_merge",
+                               "-p", "common,dedicated",
+                               "--qos", "fast",
+                               "-D", log_dir,
+                               "-c", str(ncpus),
+                               "--dependency", "afterok:" + ":".join(jids)])
+            except OSError as ex:
+                raise ex
     else:
         # GRM all chromosomes at the same time
-        jid = gcta_grm_part(in_file=in_file,
-                            out_file=out_file,
-                            par_input=par_input,
-                            gcta=gcta,
-                            ncpus=ncpus,
-                            other_gcta_par=["--autosome"] + other_gcta_par,
-                            sbatch=sbatch)
-        run(["echo", "GRM computed."],
+        if not os.path.isfile(out_file + 'grm.bin'):
+            jid = gcta_grm_part(in_file=in_file,
+                                out_file=out_file,
+                                par_input=par_input,
+                                gcta=gcta,
+                                ncpus=ncpus,
+                                other_gcta_par=["--autosome"] + other_gcta_par,
+                                sbatch=sbatch)
+        run(["printf", "GRM computed.\n"],
             mode=rmode,
             slurm_par=["-J", "gcta_completed",
+                       "-p", "common",
+                       "--qos", "normal",
                        "--dependency", "afterok:" + jid])
 
     return True
@@ -789,11 +802,11 @@ def gcta_grm_filter(in_file,
              "--grm-bin", in_file,
              "--grm-cutoff", str(grm_cutoff),
              "--make-grm-bin",
-             "--out", out_file,
-             "--thread-num", str(ncpus)
+             "--out", out_file
              ] + other_gcta_par,
             mode=rmode,
-            slurm_par=["-c", str(ncpus)])
+            slurm_par=[ "-p", "common,dedicated",
+                       "--qos", "fast"])
     except OSError as ex:
         raise ex
 
@@ -809,11 +822,11 @@ def gcta_grm_filter(in_file,
                      "--grm-bin", grmchr_file,
                      "--keep", keep_ind,
                      "--make-grm-bin",
-                     "--out", grmchr_file_filtered,
-                     "--thread-num", str(ncpus)
+                     "--out", grmchr_file_filtered
                      ] + other_gcta_par,
                     mode=rmode,
-                    slurm_par=["-c", str(ncpus)])
+                    slurm_par=[ "-p", "common,dedicated",
+                               "--qos", "fast"])
             except OSError as ex:
                 raise ex
 
@@ -872,8 +885,8 @@ def gcta_hsq(in_file,
              ncpus=1,
              sbatch=True,
              sbatch_par_j='hsq',
-             sbatch_par_p='common',
-             sbatch_par_qos='normal',
+             sbatch_par_p='common,dedicated',
+             sbatch_par_qos='fast',
              sbatch_par_mem=None,
              sbatch_par_gres='disk:100'):
 

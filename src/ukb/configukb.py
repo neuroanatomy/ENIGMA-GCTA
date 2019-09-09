@@ -12,6 +12,7 @@ def getannexdir():
 
 ANNEX_DIR = globals().get('ANNEX_DIR', getannexdir())
 PLINK = globals().get('PLINK', 'plink')
+PLINK2 = globals().get('PLINK2', 'plink2')
 GCTA = globals().get('GCTA', 'gcta64')
 
 

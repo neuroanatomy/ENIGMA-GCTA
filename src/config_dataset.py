@@ -8,7 +8,7 @@ import sys
 import subprocess
 import re
 import yaml
-import preprocessing
+import preprocessing #pylint: disable=import-error
 
 
 class Config(object):
@@ -142,18 +142,18 @@ class Config(object):
 
         self.phe_list = config_dict['phe_list']
         self.phe_list = [phenofile for phenofile in self.phe_list
-                         if os.path.exists(os.path.join(self.phe_dir, phenofile + '.txt'))
+                         if os.path.lexists(os.path.join(self.phe_dir, phenofile + '.txt'))
                          and preprocessing.pheno_count(os.path.join(self.phe_dir, phenofile + '.txt'))[0]
                          > self.min_nonmissing]
 
         self.quant_covar = [os.path.join(self.phe_dir, 'age.txt'), self.pcs]
         self.quant_covar = [covarfile for covarfile in self.quant_covar
-                            if os.path.exists(covarfile)
+                            if os.path.lexists(covarfile)
                             and preprocessing.pheno_count(covarfile)[0] > self.min_nonmissing]
 
         self.qual_covar = [os.path.join(self.phe_dir, 'sex.txt'), os.path.join(self.phe_dir, 'centre.txt')]
         self.qual_covar = [covarfile for covarfile in self.qual_covar
-                           if os.path.exists(covarfile)
+                           if os.path.lexists(covarfile)
                            and preprocessing.pheno_count(covarfile)[0] > self.min_nonmissing]
 
 

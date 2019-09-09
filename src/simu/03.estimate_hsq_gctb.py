@@ -73,6 +73,8 @@ def main():
                                    "--out", os.path.join(out_dir_hsq, os.path.basename(phe_file))],
                                   mode=mode,
                                   slurm_par=["-J", "simu_hsq",
+                                             "--qos", "normal",
+                                             "-p", "common",
                                              "--mem", mem_str,
                                              "-c", str(NBPROC),
                                              "-D", out_dir_hsq,

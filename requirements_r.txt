@@ -12,3 +12,4 @@ r-mgsub
 r-cowplot
 r-msm
 r-psych
+r-optparse 	# for PRSice
