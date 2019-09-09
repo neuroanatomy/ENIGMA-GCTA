@@ -6,3 +6,5 @@ pyyaml
 pymysql
 rpy2
 pytest
+beautifulsoup4
+lxml

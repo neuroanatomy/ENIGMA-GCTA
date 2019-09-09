@@ -29,13 +29,13 @@ class Config(object):
         bin_dir = os.path.join(self.annex_dir, "bin")
         bin_subdirs = next(os.walk(bin_dir))[1]
         if sys.platform == "linux":
-            plink_re = re.compile(r"plink_linux_x86_64")
+            plink_re = re.compile(r"plink_linux_x86_64_[0-9]")
             gcta_re = re.compile(r"gcta(?!.*_[a-z]*$)")
             gcta_path = "gcta64"
             self.prsice_bin = os.path.join(bin_dir, "PRSice", "PRSice_linux")
 
         elif sys.platform == "darwin":
-            plink_re = re.compile(r"plink_mac")
+            plink_re = re.compile(r"plink_mac_[0-9]")
             gcta_re = re.compile(r"gcta.*_mac")
             gcta_path = os.path.join("bin", "gcta64")
             self.prsice_bin = os.path.join(bin_dir, "PRSice", "PRSice_mac")
