@@ -27,14 +27,13 @@ def main(config_file):
     # use sex, center and age as covariates
 
     # Create dummy coded centre table
-    if not os.path.isfile(os.path.join(config.phe_dir, "centre.cov")):
-        # filter individuals in centre.txt keeping only those in the genotype file
-        fam_table = pd.read_table(in_file_allsnps + ".fam", delim_whitespace=True,
-                                  names=['FID', 'IID', 'PID', 'MID', 'Gender', 'Phenotype'])
-        centre_table = pd.read_table(os.path.join(config.phe_dir, "centre.txt"), delim_whitespace=True,
-                                     index_col=False)
-        centre_table = centre_table[centre_table.IID.isin(fam_table.IID)]
-        centre_table.to_csv(os.path.join(config.phe_dir, "centre.cov"), sep='\t', index=False)
+    # filter individuals in centre.txt keeping only those in the genotype file
+    fam_table = pd.read_table(in_file_allsnps + ".fam", delim_whitespace=True, dtype=str,
+                              names=['FID', 'IID', 'PID', 'MID', 'Gender', 'Phenotype'])
+    centre_table = pd.read_table(os.path.join(config.phe_dir, "centre.txt"), delim_whitespace=True,
+                                 index_col=False, dtype=str)
+    centre_table = centre_table[centre_table.IID.isin(fam_table.IID)]
+    centre_table.to_csv(os.path.join(config.phe_dir, "centre.cov"), sep='\t', index=False)
 
     # slurm configuration
     if config.use_sbatch:
