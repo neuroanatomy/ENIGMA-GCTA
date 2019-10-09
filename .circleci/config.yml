@@ -20,6 +20,8 @@ jobs:
     steps:
       - checkout
 
+      - run: apt update && apt install -y libopenblas-base
+
       # Download and cache dependencies
       - restore_cache:
           keys:
